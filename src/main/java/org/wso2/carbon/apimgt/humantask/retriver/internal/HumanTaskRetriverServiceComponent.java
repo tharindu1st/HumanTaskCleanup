@@ -3,9 +3,8 @@ package org.wso2.carbon.apimgt.humantask.retriver.internal;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.ComponentContext;
-import org.wso2.carbon.apimgt.humantask.retriver.HumanTaskCleanupDao;
 import org.wso2.carbon.apimgt.humantask.retriver.HumanTaskUtil;
-import org.wso2.carbon.apimgt.humantask.retriver.TenantListener;
+import org.wso2.carbon.apimgt.humantask.retriver.TenantActivationListener;
 import org.wso2.carbon.apimgt.impl.APIManagerConfiguration;
 import org.wso2.carbon.apimgt.impl.APIManagerConfigurationService;
 import org.wso2.carbon.base.MultitenantConstants;
@@ -35,13 +34,13 @@ public class HumanTaskRetriverServiceComponent {
 	protected void activate(ComponentContext componentContext) {
 
 		log.info("HumanTask Retriever Admin Service Started");
-		TenantListener tenantListener = new TenantListener();
-
-					tenantListener.initializeHumanTaskCleanupTask(MultitenantConstants.SUPER_TENANT_ID,
+		TenantActivationListener tenantActivationListener = new TenantActivationListener();
+		HumanTaskUtil.getHumanTask(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME,MultitenantConstants.SUPER_TENANT_ID);
+					tenantActivationListener.initializeHumanTaskCleanupTask(MultitenantConstants.SUPER_TENANT_ID,
 		                                              org.wso2.carbon.utils.multitenancy.MultitenantConstants
 				                                              .SUPER_TENANT_DOMAIN_NAME);
 		componentContext.getBundleContext()
-		                .registerService(Axis2ConfigurationContextObserver.class.getName(), tenantListener, null);
+		                .registerService(Axis2ConfigurationContextObserver.class.getName(), tenantActivationListener, null);
 
 	}
 

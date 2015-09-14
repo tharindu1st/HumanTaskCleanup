@@ -38,14 +38,12 @@ public class HumanTaskCleanupDao implements Serializable {
 	private String bpsPassword;
 
 	public HumanTaskCleanupDao(int tenantId,String tenantDomain) {
-		boolean isTenantFlowStarted = false;
+	/*	boolean isTenantFlowStarted = false;
 
 		try {
-			if (tenantDomain != null && !MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equals(tenantDomain)) {
 				isTenantFlowStarted = true;
 				PrivilegedCarbonContext.startTenantFlow();
-				PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(tenantDomain, true);
-			}
+				PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(tenantDomain, true);*/
 		InputStream in;
 
 		try {
@@ -97,11 +95,11 @@ public class HumanTaskCleanupDao implements Serializable {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 		}
-		} finally {
+	/*	} finally {
 			if (isTenantFlowStarted) {
 				PrivilegedCarbonContext.endTenantFlow();
 			}
-		}
+		}*/
 	}
 
 	public boolean isTaskCleanupEnabled() {

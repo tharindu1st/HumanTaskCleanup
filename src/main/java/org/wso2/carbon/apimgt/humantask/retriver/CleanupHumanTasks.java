@@ -49,7 +49,6 @@ public class CleanupHumanTasks {
 				                                                                     return t;
 			                                                                     }
 		                                                                     });
-
 		String humanTaskCleanupFrequency = System.getProperty(Human_TASK_CLEANUP_FREQUENCY);
 		if (humanTaskCleanupFrequency == null) {
 			humanTaskCleanupFrequency = "3600000";
@@ -63,6 +62,7 @@ public class CleanupHumanTasks {
 		                             Integer.parseInt(humanTaskCleanupFrequency),
 		                             Integer.parseInt(humanTaskCleanupFrequency), TimeUnit.MILLISECONDS);
 
+	CleanUpHumanTaskConfigurationService.getInstance().stringScheduledExecutorServiceMap.put(tenantDomain,executor);
 	}
 
 	private class CleanupTask implements Runnable {
@@ -150,13 +150,14 @@ public class CleanupHumanTasks {
 						}
 
 					} catch (APIManagementException e) {
-						e.printStackTrace();
+						log.error(e.getMessage(),e);
 					} catch (RemoteException e) {
-						e.printStackTrace();
+						log.error("Couldn't Log into BPS Host", e);
 					} catch (IllegalArgumentFault illegalArgumentFault) {
-						illegalArgumentFault.printStackTrace();
+						log.error("Couldn't checked with states",illegalArgumentFault);
 					} catch (IllegalStateFault illegalStateFault) {
-						illegalStateFault.printStackTrace();
+						log.error("Couldn't checked with states", illegalStateFault);
+
 					}
 
 				}
@@ -199,7 +200,8 @@ public class CleanupHumanTasks {
 			try {
 				client.fireAndForget(AXIOMUtil.stringToOM(payload));
 			} catch (XMLStreamException e) {
-				e.printStackTrace();
+				log.error("couldn't transform payload",e);
+
 			}
 		}
 

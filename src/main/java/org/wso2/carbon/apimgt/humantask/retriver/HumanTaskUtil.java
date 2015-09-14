@@ -8,8 +8,10 @@ import org.wso2.carbon.apimgt.impl.dto.WorkflowDTO;
 import org.wso2.carbon.apimgt.impl.utils.APIMgtDBUtil;
 import org.wso2.carbon.apimgt.impl.workflow.WorkflowExecutorFactory;
 import org.wso2.carbon.apimgt.impl.workflow.WorkflowStatus;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 
 import javax.cache.Cache;
+import javax.cache.CacheManager;
 import javax.cache.Caching;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -24,22 +26,25 @@ public class HumanTaskUtil {
 
 	public static HumanTaskCleanupDao getHumanTask(String tenantDomain, int tenantId) {
 		HumanTaskCleanupDao humanTaskCleanupDao;
+		boolean isTenantFlowStarted = false;
 
-		log.info("inget");
+		try {
+			isTenantFlowStarted = true;
+			PrivilegedCarbonContext.startTenantFlow();
+			PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(tenantDomain, true);
 			String cacheName = tenantDomain + "_" + HUMAN_TASK_CLEANUP_CACHE;
-			log.info("aftercachename");
-
-			Cache workflowCache =
-					Caching.getCacheManager(APIConstants.API_MANAGER_CACHE_MANAGER).getCache(HUMAN_TASK_CLEANUP_CACHE);
-			log.info("get cache");
+			CacheManager cacheManager = Caching.getCacheManager(APIConstants.API_MANAGER_CACHE_MANAGER);
+			Cache workflowCache = cacheManager.getCache(HUMAN_TASK_CLEANUP_CACHE);
 			humanTaskCleanupDao = (HumanTaskCleanupDao) workflowCache.get(cacheName);
-			log.info("humantaskcleanupcache1");
 			if (humanTaskCleanupDao == null) {
-		log.info("humantaskcleanupcache2");
-		humanTaskCleanupDao = new HumanTaskCleanupDao(tenantId, tenantDomain);
-		log.info("humantaskcleanupcache3");
-		workflowCache.put(cacheName, humanTaskCleanupDao);
+				humanTaskCleanupDao = new HumanTaskCleanupDao(tenantId, tenantDomain);
+				workflowCache.put(cacheName, humanTaskCleanupDao);
 
+			}
+		} finally {
+			if (isTenantFlowStarted) {
+				PrivilegedCarbonContext.endTenantFlow();
+			}
 		}
 		return humanTaskCleanupDao;
 	}
